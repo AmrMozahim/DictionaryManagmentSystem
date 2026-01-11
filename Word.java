@@ -5,7 +5,8 @@ public class Word implements Comparable<Word> {
     private String example;
     private String type;
 
-    public Word(String word, String englishMeaning, String arabicMeaning, String example, String type) {
+    public Word(String word, String englishMeaning, String arabicMeaning,
+                String example, String type) {
         this.word = word;
         this.englishMeaning = englishMeaning;
         this.arabicMeaning = arabicMeaning;
@@ -20,7 +21,8 @@ public class Word implements Comparable<Word> {
 
     @Override
     public String toString() {
-        return word + ";" + englishMeaning + ";" + arabicMeaning + ";" + example + ";" + type;
+        return word + ";" + englishMeaning + ";" + arabicMeaning +
+                ";" + example + ";" + type;
     }
 
     public static Word fromString(String line) {
@@ -31,14 +33,12 @@ public class Word implements Comparable<Word> {
         return null;
     }
 
-    // Getters
     public String getWord() { return word; }
     public String getEnglishMeaning() { return englishMeaning; }
     public String getArabicMeaning() { return arabicMeaning; }
     public String getExample() { return example; }
     public String getType() { return type; }
 
-    // Setters
     public void setWord(String word) { this.word = word; }
     public void setEnglishMeaning(String englishMeaning) { this.englishMeaning = englishMeaning; }
     public void setArabicMeaning(String arabicMeaning) { this.arabicMeaning = arabicMeaning; }

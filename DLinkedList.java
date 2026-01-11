@@ -1,5 +1,5 @@
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DLinkedList {
     private DNode head;
@@ -13,11 +13,11 @@ public class DLinkedList {
 
         for (char c = 'A'; c <= 'Z'; c++) {
             DNode newNode = new DNode(c);
-            insertAtEnd(newNode);
+            addNode(newNode);
         }
     }
 
-    private void insertAtEnd(DNode newNode) {
+    private void addNode(DNode newNode) {
         DNode last = head.getPrev();
         last.setNext(newNode);
         newNode.setPrev(last);
@@ -36,6 +36,7 @@ public class DLinkedList {
         return null;
     }
 
+    // Add word - FIXED
     public boolean addWord(Word word) {
         if (word == null || word.getWord().isEmpty()) {
             return false;
@@ -46,6 +47,7 @@ public class DLinkedList {
             return false;
         }
 
+        // Check if word already exists - FIXED
         Word existing = searchEnglish(word.getWord());
         if (existing != null) {
             return false;
@@ -61,6 +63,7 @@ public class DLinkedList {
         return false;
     }
 
+    // Search by English
     public Word searchEnglish(String englishWord) {
         if (englishWord == null || englishWord.isEmpty()) {
             return null;
@@ -69,14 +72,15 @@ public class DLinkedList {
         char firstLetter = Character.toUpperCase(englishWord.charAt(0));
         DNode node = getNodeByLetter(firstLetter);
         if (node != null) {
-            Word searchWord = new Word(englishWord, "", "", "", "");
-            return node.getTree().search(searchWord);
-        }
 
+            Word tempWord = new Word(englishWord, "", "", "", "");
+            Word found = node.getTree().search(tempWord);
+            return found;
+        }
         return null;
     }
 
-    // البحث بالعربي بدون Map
+    // Search by Arabic
     public Word searchArabic(String arabicMeaning) {
         DNode current = head.getNext();
         while (current != head) {
@@ -89,13 +93,17 @@ public class DLinkedList {
         return null;
     }
 
+    // Update word
     public boolean updateWord(String englishWord, Word newWord) {
+        // First delete the old word
         if (deleteWord(englishWord)) {
+            // Then add the new word
             return addWord(newWord);
         }
         return false;
     }
 
+    // Delete word
     public boolean deleteWord(String englishWord) {
         if (englishWord == null || englishWord.isEmpty()) {
             return false;
@@ -104,8 +112,9 @@ public class DLinkedList {
         char firstLetter = Character.toUpperCase(englishWord.charAt(0));
         DNode node = getNodeByLetter(firstLetter);
         if (node != null) {
-            Word searchWord = new Word(englishWord, "", "", "", "");
-            Word wordToDelete = node.getTree().search(searchWord);
+
+            Word tempWord = new Word(englishWord, "", "", "", "");
+            Word wordToDelete = node.getTree().search(tempWord);
 
             if (wordToDelete != null) {
                 node.getTree().delete(wordToDelete);
@@ -113,16 +122,7 @@ public class DLinkedList {
                 return true;
             }
         }
-
         return false;
-    }
-
-    public List<Word> getWordsByLetter(char letter) {
-        DNode node = getNodeByLetter(letter);
-        if (node != null) {
-            return node.getTree().inOrderTraversal();
-        }
-        return new ArrayList<>();
     }
 
     public List<Word> getAllWords() {
@@ -130,28 +130,37 @@ public class DLinkedList {
         DNode current = head.getNext();
 
         while (current != head) {
-            allWords.addAll(current.getTree().inOrderTraversal());
+            allWords.addAll(current.getTree().getInOrder());
             current = current.getNext();
         }
-
         return allWords;
     }
 
-    // الحصول على عدد الكلمات لكل حرف بدون Map
-    public List<LetterCount> getWordCountByLetter() {
+    public List<Word> getWordsByLetter(char letter) {
+        DNode node = getNodeByLetter(letter);
+        if (node != null) {
+            return node.getTree().getInOrder();
+        }
+        return new ArrayList<>();
+    }
+
+    public int getTotalWords() {
+        return totalWords;
+    }
+
+    public List<LetterCount> getLetterCounts() {
         List<LetterCount> counts = new ArrayList<>();
         DNode current = head.getNext();
 
         while (current != head) {
-            counts.add(new LetterCount(current.getLetter(), current.getTree().getWordCount()));
+            counts.add(new LetterCount(current.getLetter(),
+                    current.getTree().getSize()));
             current = current.getNext();
         }
-
         return counts;
     }
 
-    // الحصول على عدد الكلمات لكل نوع بدون Map
-    public List<TypeCount> getWordCountByType() {
+    public List<TypeCount> getTypeCounts() {
         List<TypeCount> counts = new ArrayList<>();
         List<Word> allWords = getAllWords();
 
@@ -161,7 +170,7 @@ public class DLinkedList {
 
             for (TypeCount tc : counts) {
                 if (tc.getType().equals(type)) {
-                    tc.incrementCount();
+                    tc.count++;
                     found = true;
                     break;
                 }
@@ -171,48 +180,24 @@ public class DLinkedList {
                 counts.add(new TypeCount(type, 1));
             }
         }
-
         return counts;
     }
 
-    // الحصول على ارتفاع الأشجار بدون Map
     public List<LetterHeight> getTreeHeights() {
         List<LetterHeight> heights = new ArrayList<>();
         DNode current = head.getNext();
 
         while (current != head) {
-            heights.add(new LetterHeight(current.getLetter(), current.getTree().getTreeHeight()));
+            heights.add(new LetterHeight(current.getLetter(),
+                    current.getTree().getTreeHeight()));
             current = current.getNext();
         }
-
         return heights;
     }
 
-    public int getTotalWords() {
-        return totalWords;
-    }
-
-    public Word getRandomWordByType(String type) {
-        List<Word> wordsOfType = new ArrayList<>();
-        DNode current = head.getNext();
-
-        while (current != head) {
-            wordsOfType.addAll(current.getTree().getWordsByType(type));
-            current = current.getNext();
-        }
-
-        if (!wordsOfType.isEmpty()) {
-            int randomIndex = ThreadLocalRandom.current().nextInt(wordsOfType.size());
-            return wordsOfType.get(randomIndex);
-        }
-
-        return null;
-    }
-
-    // كلاسات مساعدة بدلاً من Map
     public static class LetterCount {
-        private char letter;
-        private int count;
+        public char letter;
+        public int count;
 
         public LetterCount(char letter, int count) {
             this.letter = letter;
@@ -224,8 +209,8 @@ public class DLinkedList {
     }
 
     public static class TypeCount {
-        private String type;
-        private int count;
+        public String type;
+        public int count;
 
         public TypeCount(String type, int count) {
             this.type = type;
@@ -234,12 +219,11 @@ public class DLinkedList {
 
         public String getType() { return type; }
         public int getCount() { return count; }
-        public void incrementCount() { this.count++; }
     }
 
     public static class LetterHeight {
-        private char letter;
-        private int height;
+        public char letter;
+        public int height;
 
         public LetterHeight(char letter, int height) {
             this.letter = letter;

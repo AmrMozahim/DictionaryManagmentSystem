@@ -2,11 +2,11 @@ public class AVLNode<T extends Comparable<T>> {
     private T data;
     private AVLNode<T> left;
     private AVLNode<T> right;
-    private int height;
 
     public AVLNode(T data) {
         this.data = data;
-        this.height = 1;
+        this.left = null;
+        this.right = null;
     }
 
     public T getData() { return data; }
@@ -17,9 +17,6 @@ public class AVLNode<T extends Comparable<T>> {
 
     public AVLNode<T> getRight() { return right; }
     public void setRight(AVLNode<T> right) { this.right = right; }
-
-    public int getHeight() { return height; }
-    public void setHeight(int height) { this.height = height; }
 
     public boolean hasLeft() { return left != null; }
     public boolean hasRight() { return right != null; }
